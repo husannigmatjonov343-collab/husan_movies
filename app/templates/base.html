@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}KinoSayt{% endblock %}</title>
+    <meta name="description" content="KinoSayt — kinolar olamiga sayohat">
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="/" class="logo">Kino<span>Sayt</span></a>
+
+            <nav class="main-nav">
+                <div class="nav-dropdown">
+                    <button class="nav-link dropdown-toggle">Janrlar <span class="chev">&#9662;</span></button>
+                    <div class="dropdown-menu">
+                        {% for g in genres %}
+                        <a href="/genre/{{ g.slug }}">{{ g.name }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </nav>
+
+            <form class="search-wrap" action="/search" method="get">
+                <input type="text" name="q" placeholder="Kino, rejissyor qidirish..." autocomplete="off" value="{{ query|default('') }}">
+                <button type="submit" aria-label="Qidirish">&#128269;</button>
+            </form>
+        </div>
+    </header>
+
+    {% block content %}{% endblock %}
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <span class="logo">Kino<span>Sayt</span></span>
+                <p>Har bir kadr &mdash; yangi bir olam. FastAPI asosida qurilgan kino platformasi.</p>
+            </div>
+            <div class="footer-genres">
+                <h4>Janrlar</h4>
+                <div class="footer-genre-list">
+                    {% for g in genres %}
+                    <a href="/genre/{{ g.slug }}">{{ g.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <p class="copyright">&copy; 2026 KinoSayt &mdash; barcha huquqlar himoyalangan (demo loyiha)</p>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

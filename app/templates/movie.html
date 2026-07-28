@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}{{ movie.title }} — KinoSayt{% endblock %}
+{% block body_class %}watch-page{% endblock %}
+
+{% block content %}
+<main class="watch-wrap">
+    <div class="player-shell">
+        <div class="player-frame">
+            <iframe
+                src="https://www.youtube.com/embed/{{ movie.youtube_id }}?autoplay=1&rel=0"
+                title="{{ movie.title }}"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+            </iframe>
+        </div>
+    </div>
+
+    <div class="movie-details">
+        <div class="details-main">
+            <h1>{{ movie.title }}</h1>
+            <div class="meta-row">
+                <span class="rating-badge">&#9733; {{ movie.rating }}</span>
+                <span>{{ movie.year }}</span>
+                <span>&middot;</span>
+                <span>{{ movie.duration_min }} daqiqa</span>
+                <span>&middot;</span>
+                <span>{{ movie.country }}</span>
+                <span>&middot;</span>
+                <span>{{ movie.views }} marta ko'rilgan</span>
+            </div>
+
+            <div class="genre-chips">
+                {% for g in movie.genres %}
+                <a href="/genre/{{ g.slug }}" class="genre-chip">{{ g.name }}</a>
+                {% endfor %}
+            </div>
+
+            <p class="description">{{ movie.description }}</p>
+
+            <div class="crew-info">
+                {% if movie.director %}<p><strong>Rejissyor:</strong> {{ movie.director }}</p>{% endif %}
+                {% if movie.cast %}<p><strong>Ijrochilar:</strong> {{ movie.cast }}</p>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if related %}
+    <section class="rail-section">
+        <div class="rail-header">
+            <h2>O'xshash kinolar</h2>
+        </div>
+        <div class="movie-rail">
+            {% for m in related %}
+            <a href="/movie/{{ m.id }}" class="rail-card">
+                <div class="poster-wrap">
+                    <img src="{{ m.poster }}" alt="{{ m.title }}" loading="lazy">
+                    <div class="poster-overlay"><span class="play-icon">&#9658;</span></div>
+                    <span class="rating-badge">&#9733; {{ m.rating }}</span>
+                </div>
+                <h3>{{ m.title }}</h3>
+                <p>{{ m.year }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</main>
+{% endblock %}

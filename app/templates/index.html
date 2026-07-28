@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}KinoSayt — Bosh sahifa{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-slides">
+        {% for movie in featured %}
+        <a href="/movie/{{ movie.id }}" class="hero-slide {% if loop.first %}active{% endif %}" style="background-image: linear-gradient(180deg, rgba(10,10,13,0.2) 0%, rgba(10,10,13,0.95) 100%), url('{{ movie.backdrop or movie.poster }}');">
+            <div class="hero-content">
+                <p class="eyebrow">Tanlangan &middot; {{ movie.genres[0].name if movie.genres else "" }}</p>
+                <h1>{{ movie.title }}</h1>
+                <div class="hero-meta">
+                    <span class="rating-badge">&#9733; {{ movie.rating }}</span>
+                    <span>{{ movie.year }}</span>
+                    <span>&middot;</span>
+                    <span>{{ movie.duration_min }} daqiqa</span>
+                </div>
+                <p class="hero-desc">{{ movie.description }}</p>
+                <span class="btn-play">&#9658; Tomosha qilish</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    <div class="hero-dots">
+        {% for movie in featured %}
+        <button class="hero-dot {% if loop.first %}active{% endif %}" data-index="{{ loop.index0 }}"></button>
+        {% endfor %}
+    </div>
+</section>
+
+<main class="page-wrap">
+    <div class="stats-strip">
+        <span><strong>{{ total_movies }}</strong> ta kino</span>
+        <span><strong>{{ genres|length }}</strong> ta janr</span>
+        <span>Har kuni yangilanadi</span>
+    </div>
+
+    <section class="rail-section">
+        <div class="rail-header">
+            <h2>Trendda</h2>
+            <span class="rail-sub">Eng ko'p tomosha qilinganlar</span>
+        </div>
+        <div class="movie-rail">
+            {% for movie in trending %}
+            <a href="/movie/{{ movie.id }}" class="rail-card">
+                <div class="poster-wrap">
+                    <img src="{{ movie.poster }}" alt="{{ movie.title }}" loading="lazy">
+                    <div class="poster-overlay"><span class="play-icon">&#9658;</span></div>
+                    <span class="rating-badge">&#9733; {{ movie.rating }}</span>
+                    <span class="rank-badge">#{{ loop.index }}</span>
+                </div>
+                <h3>{{ movie.title }}</h3>
+                <p>{{ movie.year }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="rail-section">
+        <div class="rail-header">
+            <h2>Yangi qo'shilganlar</h2>
+            <span class="rail-sub">Eng so'nggi chiqarilgan filmlar</span>
+        </div>
+        <div class="movie-rail">
+            {% for movie in newest %}
+            <a href="/movie/{{ movie.id }}" class="rail-card">
+                <div class="poster-wrap">
+                    <img src="{{ movie.poster }}" alt="{{ movie.title }}" loading="lazy">
+                    <div class="poster-overlay"><span class="play-icon">&#9658;</span></div>
+                    <span class="rating-badge">&#9733; {{ movie.rating }}</span>
+                </div>
+                <h3>{{ movie.title }}</h3>
+                <p>{{ movie.year }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="rail-section">
+        <div class="rail-header">
+            <h2>Eng yuqori bahoga ega</h2>
+            <span class="rail-sub">Tanqidchilar va tomoshabinlar tanlovi</span>
+        </div>
+        <div class="movie-rail">
+            {% for movie in top_rated %}
+            <a href="/movie/{{ movie.id }}" class="rail-card">
+                <div class="poster-wrap">
+                    <img src="{{ movie.poster }}" alt="{{ movie.title }}" loading="lazy">
+                    <div class="poster-overlay"><span class="play-icon">&#9658;</span></div>
+                    <span class="rating-badge">&#9733; {{ movie.rating }}</span>
+                </div>
+                <h3>{{ movie.title }}</h3>
+                <p>{{ movie.year }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="genre-grid-section">
+        <h2>Janr bo'yicha ko'rish</h2>
+        <div class="genre-tiles">
+            {% for g in genres %}
+            <a href="/genre/{{ g.slug }}" class="genre-tile">{{ g.name }}</a>
+            {% endfor %}
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/static/js/hero.js"></script>
+{% endblock %}

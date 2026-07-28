@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}"{{ query }}" uchun qidiruv — KinoSayt{% endblock %}
+
+{% block content %}
+<main class="page-wrap genre-page">
+    <div class="page-title-block">
+        <p class="eyebrow">Qidiruv natijalari</p>
+        <h1>&ldquo;{{ query }}&rdquo;</h1>
+        <p class="hero-sub">{{ results|length }} ta natija topildi</p>
+    </div>
+
+    {% if results %}
+    <div class="movie-grid">
+        {% for movie in results %}
+        <a href="/movie/{{ movie.id }}" class="movie-card">
+            <div class="poster-wrap">
+                <img src="{{ movie.poster }}" alt="{{ movie.title }}" loading="lazy">
+                <div class="poster-overlay"><span class="play-icon">&#9658;</span></div>
+                <span class="rating-badge">&#9733; {{ movie.rating }}</span>
+            </div>
+            <div class="card-info">
+                <h3>{{ movie.title }}</h3>
+                <p>{{ movie.year }}</p>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="no-results">Hech narsa topilmadi. Boshqa kalit so'z bilan izlab ko'ring.</p>
+    {% endif %}
+</main>
+{% endblock %}

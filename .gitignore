@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+venv/
+.env
+kinosayt.db
+.DS_Store
