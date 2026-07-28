@@ -1,18 +1,20 @@
-import os
+from pathlib import Path
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
-# Agar loyiha Vercel serverida ishlayotgan bo'lsa, /tmp papkasidan foydalanadi
-if os.environ.get("VERCEL"):
-    DB_PATH = "/tmp/kinosayt.db"
-else:
-    DB_PATH = "kinosayt.db"
+# Fayl joylashgan papkani aniq aniqlaymiz
+BASE_DIR = Path(__file__).resolve().parent.parent  # Yoki app papkangiz joylashuviga qarab
 
+# sql_app.db fayliga aniq absolyut yo'l ko'rsatamiz
+DB_PATH = BASE_DIR / "sql_app.db"
 SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    SQLALCHEMY_DATABASE_URL,
+    connect_args={"check_same_thread": False}
 )
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
