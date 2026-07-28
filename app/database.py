@@ -1,36 +1,44 @@
 import os
+import shutil
 from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-# Loyihaning asosiy papkasi
-BASE_DIR = Path(__file__).resolve().parent.parent
+# 1. Loyihaning ildiz (root) papkasini aniqlash
+CURRENT_DIR = Path(__file__).resolve().parent
+BASE_DIR = CURRENT_DIR.parent if CURRENT_DIR.name == "app" else CURRENT_DIR
 
-# Vercel Environment Variables bo'limidan DATABASE_URL ni olish
-DATABASE_URL = os.getenv("DATABASE_URL")
+# 2. Baza fayli nomi
+# (Agar faylingiz nomi 'sql_app.db' bo'lsa, pastdagi 'kinosayt.db'ni 'sql_app.db'ga o'zgartiring)
+DB_NAME = "kinosayt.db"
 
-if DATABASE_URL:
-    # Ba'zi bulutli servislar (masalan, Supabase/Neon) "postgres://" berishi mumkin.
-    # SQLAlchemy esa modern "postgresql://" formatini talab qiladi.
-    if DATABASE_URL.startswith("postgres://"):
-        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-    
-    # Bulutli PostgreSQL bazasi uchun engine
-    engine = create_engine(DATABASE_URL)
+ORIGINAL_DB_PATH = BASE_DIR / DB_NAME
+TMP_DB_PATH = Path(f"/tmp/{DB_NAME}")
+
+# 3. Vercel muhitida faylni yozish va o'qish mumkin bo'lgan /tmp papkasiga nusxalash
+if ORIGINAL_DB_PATH.exists() and not TMP_DB_PATH.exists():
+    try:
+        shutil.copyfile(ORIGINAL_DB_PATH, TMP_DB_PATH)
+    except Exception as e:
+        print(f"DB faylini /tmp ga nusxalashda xatolik: {e}")
+
+# 4. Qaysi yo'ldan foydalanishni tanlash
+if TMP_DB_PATH.exists():
+    SQLALCHEMY_DATABASE_URL = f"sqlite:///{TMP_DB_PATH}"
 else:
-    # Lokal kompyuterda ishlatish uchun SQLite bazasi
-    DB_PATH = BASE_DIR / "sql_app.db"
-    SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
-    
-    engine = create_engine(
-        SQLALCHEMY_DATABASE_URL,
-        connect_args={"check_same_thread": False}
-    )
+    SQLALCHEMY_DATABASE_URL = f"sqlite:///{ORIGINAL_DB_PATH}"
+
+# 5. SQLAlchemy Engine va Session yaratish
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL,
+    connect_args={"check_same_thread": False}
+)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
+# 6. Dependency
 def get_db():
     db = SessionLocal()
     try:
