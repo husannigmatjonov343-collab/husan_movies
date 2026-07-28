@@ -56,3 +56,21 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+
+@app.exception_handler(StarletteHTTPException)
+async def custom_404_handler(request: Request, exc: StarletteHTTPException):
+    if exc.status_code == 404:
+        genres = []
+        try:
+            db = SessionLocal()
+            genres = db.query(Genre).order_by(Genre.name).all()
+            db.close()
+        except Exception as e:
+            print(f"404 DB Error: {e}")
+
+        return templates.TemplateResponse(
+            name="404.html",
+            context={"request": request, "genres": genres},
+            status_code=404,
+        )
+    raise exc
