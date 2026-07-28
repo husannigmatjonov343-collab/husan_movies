@@ -16,7 +16,6 @@ BASE_DIR = Path(__file__).resolve().parent
 # Database jadvallarini ilova ishga tushganda yaratish (Lifespan usuli)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    Base.metadata.create_all(bind=engine)
     yield
 
 
