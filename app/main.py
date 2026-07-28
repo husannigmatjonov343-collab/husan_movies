@@ -1,28 +1,37 @@
-import os
+from pathlib import Path
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from .database import Base, engine, SessionLocal
 from .routers import pages, api
 from .models import Genre
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# Loyihaning asosiy papka yo'lini aniqlash (pathlib orqali zamonaviy usul)
+BASE_DIR = Path(__file__).resolve().parent
 
-Base.metadata.create_all(bind=engine)
+
+# Database jadvallarini ilova ishga tushganda yaratish (Lifespan usuli)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(bind=engine)
+    yield
+
 
 app = FastAPI(
     title="KinoSayt",
     description="FastAPI asosida qurilgan katta kino platformasi",
     version="2.0.0",
+    lifespan=lifespan,
 )
 
-app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
+# Statik fayllar va shablonlarni (templates) ulash
+app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
+templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
-templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
-
+# Routerni ilovaga qo'shish
 app.include_router(pages.router)
 app.include_router(api.router)
 
@@ -35,12 +44,16 @@ async def custom_404_handler(request: Request, exc: StarletteHTTPException):
             genres = db.query(Genre).order_by(Genre.name).all()
         finally:
             db.close()
+
         return templates.TemplateResponse(
-            request, "404.html", {"genres": genres}, status_code=404
+            name="404.html",
+            context={"request": request, "genres": genres},
+            status_code=404,
         )
     raise exc
 
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
